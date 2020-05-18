@@ -43,6 +43,18 @@ def get_scaler(env):
     scaler.fit(states)
     return scaler
 
+def create_model(input_dim, n_action, hidden_layers=1, hidden_dim=32):
+    i = Input(input_dim)
+    x = i
+    for i in range(hidden_layers):
+        x = Dense(hidden_dim, activation='relu')(x)
+    x = Dense(n_action)(x)
+    
+    model = Model(i, x)
+    model.compile(optimizer='adam', loss='mse')
+    print(model.summary())
+    return model
+
 class ReplayBuffer():
     def __init__(self, obs_dim, act_dim, size):
         # states
