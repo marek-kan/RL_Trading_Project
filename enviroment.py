@@ -28,3 +28,10 @@ class Env():
         self.state_dim = self.n_stock*2 + 1
         self.reset()
         
+    def reset(self):
+        # point at first day in dataset
+        self.current_step = 0
+        self.stock_owned = np.zeros(self.n_stock)
+        self.stock_price = self.stock_history[self.current_step]
+        self.cash_at_hand = self.initial_investment
+        return self._get_obs()
