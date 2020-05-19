@@ -66,8 +66,36 @@ class Env():
         obs[self.n_stock:self.n_stock+2] = self.stock_price
         obs[-1] = self.cash_at_hand
         return obs
+    
+    def get_val(self):
+        return self.stock_owned.dot(self.stock_price) + self.cash_at_hand
+    
+    def trade(self, action):
+        action_vect = self.action_list[action]
         
-        
+        sell_index= []
+        buy_index = []
+        for i, a in enumerate(action_vect):
+            if a==0:
+                sell_index.append(i)
+            if a==2:
+                buy_index.append(i)
+        # first sell all what we want to sell
+        if sell_index:
+            # Simplification: sell all shares
+            for i in sell_index:
+                self.cash_at_hand += self.stock_price[i] * self.stock_owned[i]
+                self.stock_owned[i] = 0
+        if buy_index:
+            # buy one stock at one time until we run out of cash
+            can_buy = True
+            while can_buy:
+                for i in buy_index:
+                    if self.cash_at_hand > self.stock_price[i]:
+                        self.cash_at_hand -= self.stock_price 
+                        self.stock_owned[i] += 1
+                    else:
+                        can_buy = False
         
         
         
