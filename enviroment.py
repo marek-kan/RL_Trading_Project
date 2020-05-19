@@ -40,23 +40,33 @@ class Env():
         assert action in self.action_space
         
         # get current value
-        prev_val = self._get_val()
+        prev_val = self.get_val()
         # update price, go to the next day
         self.current_step += 1
         self.stock_price = self.stock_history[self.current_step]
         
         # perform the trade
-        self._trade(action)
+        self.trade(action)
         
         # get next value after performing the action
-        cur_val = self._get_val()
+        cur_val = self.get_val()
         # reward is the increase of portfolio value
         reward = cur_val - prev_val
         done = self.current_step == self.n_step-1
         
         info = {'current value of portfolio': cur_val}
         # next state, rewardm done, info
-        return self._get_obs(), reward, done, info
+        return self.get_obs(), reward, done, info
+    
+    def get_obs(self):
+        obs = np.empty(self.state_dim)
+        # first fill stocks owned
+        obs[:self.n_stock] = self.stock_owned
+        # next are prices
+        obs[self.n_stock:self.n_stock+2] = self.stock_price
+        obs[-1] = self.cash_at_hand
+        return obs
+        
         
         
         
