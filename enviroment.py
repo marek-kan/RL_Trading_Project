@@ -35,3 +35,51 @@ class Env():
         self.stock_price = self.stock_history[self.current_step]
         self.cash_at_hand = self.initial_investment
         return self._get_obs()
+    
+    def step(self, action):
+        assert action in self.action_space
+        
+        # get current value
+        prev_val = self._get_val()
+        # update price, go to the next day
+        self.current_step += 1
+        self.stock_price = self.stock_history[self.current_step]
+        
+        # perform the trade
+        self._trade(action)
+        
+        # get next value after performing the action
+        cur_val = self._get_val()
+        # reward is the increase of portfolio value
+        reward = cur_val - prev_val
+        done = self.current_step == self.n_step-1
+        
+        info = {'current value of portfolio': cur_val}
+        # next state, rewardm done, info
+        return self._get_obs(), reward, done, info
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
