@@ -24,4 +24,57 @@ class Agent():
             act_values = self.model.predict(state)
             return np.argmax(act_values[0])
         
-    
+    def replay(self, batch_size=32):
+        if self.memory.size < batch_size:
+            return print('Not enough data in replay buffer!')
+        else:
+            batch = self.memory.sample_batch(batch_size)
+            states = batch['s']
+            actions = batch['a']
+            rewards = batch['r']
+            next_states = batch['s2']
+            done = batch['done']
+            
+            # Calculate the tentative target Q(s', a)
+            target = rewards + np.amax(self.model.predict(next_states), axis=1)
+            # Target for terminal state, set the target to be reward only
+            target[done] = rewards[done]
+            """
+            We need target to be same shape as predictions. However, we only need
+            to update DNN for actions which were taken. So set target equal to 
+            the predictions for all values. Then only change targets for action
+            taken. 
+            """
+#            Calculate prediction for each state and action
+            target_full = self.model.predict(states)
+#            We want to change this array for actions where we have actual target
+#            Error on  actions which werent taken will be 0
+            target_full[np.arange(batch_size), actions] = target
+            
+            self.model.train_on_batch(states, target_full)
+            
+            if self.epsilon > self.epsilon_min:
+                self.epsilon += self.epsilon_decay
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
