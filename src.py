@@ -52,6 +52,24 @@ def create_model(input_dim, n_action, hidden_layers=1, hidden_dim=32):
     print(model.summary())
     return model
 
+def play_one_episode(agent, env, is_train):
+    state = env.reset()
+    try:
+        state = scaler.transform([state])
+    except:
+        print('Scalar object not found!')
+        return
+    done = False
+    
+    while not done:
+        action = agent.act(state)
+        next_state, reward, action, done, info = env.step(action)
+        if is_train=='train':
+            agent.update_replay_buffer(state, action, reward, next_state, done)
+            agent.replay(agent.batch_size)
+        state = next_state
+    return info['current value of portfolio']
+
 class ReplayBuffer():
     def __init__(self, obs_dim, act_dim, size):
         # states
