@@ -32,7 +32,7 @@ def get_scaler(env):
     states = []
     for i in range(env.n_step):
         action = np.random.choice(env.action_space)
-        s, r, done, info = env.step(action)
+        s, r, a, done, info = env.step(action)
         states.append(s)
         if done:
             break
@@ -41,18 +41,22 @@ def get_scaler(env):
     return scaler
 
 def create_model(input_dim, n_action, hidden_layers=1, hidden_dim=32):
-    i = Input(input_dim)
+    i = Input(shape=(input_dim,))
     x = i
-    for i in range(hidden_layers):
+
+    for _ in range(hidden_layers):
         x = Dense(hidden_dim, activation='relu')(x)
+    # final layer
     x = Dense(n_action)(x)
-    
+
+    # make the model
     model = Model(i, x)
-    model.compile(optimizer='adam', loss='mse')
-    print(model.summary())
+
+    model.compile(loss='mse', optimizer='adam')
+    print((model.summary()))
     return model
 
-def play_one_episode(agent, env, is_train):
+def play_one_episode(scaler, agent, env, is_train):
     state = env.reset()
     try:
         state = scaler.transform([state])
@@ -66,7 +70,7 @@ def play_one_episode(agent, env, is_train):
         next_state, reward, action, done, info = env.step(action)
         if is_train=='train':
             agent.update_replay_buffer(state, action, reward, next_state, done)
-            agent.replay(agent.batch_size)
+            agent.replay()
         state = next_state
     return info['current value of portfolio']
 
