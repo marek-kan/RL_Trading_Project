@@ -22,7 +22,7 @@ class Env():
         self.stock_owned = None
         self.stock_price = None
         self.cash_at_hand = None
-        self.action_space = np.arrange(3**self.n_stock)
+        self.action_space = np.arange(3**self.n_stock)
         # 0-sell, 1-hold, 2-buy, permutations of all possible actions
         self.action_list = list(map(list, itertools.product([0, 1, 2], repeat=self.n_stock)))
         self.state_dim = self.n_stock*2 + 1
@@ -34,7 +34,7 @@ class Env():
         self.stock_owned = np.zeros(self.n_stock)
         self.stock_price = self.stock_history[self.current_step]
         self.cash_at_hand = self.initial_investment
-        return self._get_obs()
+        return self.get_obs()
     
     def step(self, action):
         assert action in self.action_space
@@ -56,14 +56,14 @@ class Env():
         
         info = {'current value of portfolio': cur_val}
         # next state, rewardm done, info
-        return self.get_obs(), reward, done, info
+        return self.get_obs(), reward, action, done, info
     
     def get_obs(self):
         obs = np.empty(self.state_dim)
         # first fill stocks owned
         obs[:self.n_stock] = self.stock_owned
         # next are prices
-        obs[self.n_stock:self.n_stock+2] = self.stock_price
+        obs[self.n_stock:self.n_stock+3] = self.stock_price
         obs[-1] = self.cash_at_hand
         return obs
     
@@ -92,7 +92,7 @@ class Env():
             while can_buy:
                 for i in buy_index:
                     if self.cash_at_hand > self.stock_price[i]:
-                        self.cash_at_hand -= self.stock_price 
+                        self.cash_at_hand -= self.stock_price[i]
                         self.stock_owned[i] += 1
                     else:
                         can_buy = False
