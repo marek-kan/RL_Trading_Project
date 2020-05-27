@@ -8,8 +8,8 @@ class Agent():
         self.a_size = action_size
         self.batch_size = batch_size
         self.memory = src.ReplayBuffer(state_size, action_size, size=500)
-        self.gamma = 0.95 # discount rate
-        self.epsilon = 1.0 # exploration rate
+        self.gamma = 0.95 # discount rate 
+        self.epsilon = 1.0 # exploration rate, 1 - pure exploration, 0 - deterministic
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.995
         self.model = src.create_model(state_size, action_size)
@@ -22,7 +22,7 @@ class Agent():
         if np.random.rand()<=self.epsilon:
             return np.random.choice(self.a_size)
         else:
-            act_values = self.model.predict(state)
+            act_values = self.model.predict(state.reshape(1, self.s_size))
             return np.argmax(act_values[0])
         
     def replay(self):
@@ -37,9 +37,7 @@ class Agent():
             done = batch['done']
             
             # Calculate the tentative target Q(s', a)
-            target = rewards + np.amax(self.model.predict(next_states), axis=1)
-            # Target for terminal state, set the target to be reward only
-            target[done] = rewards[done]
+            target = rewards + (1 - done) * self.gamma * np.amax(self.model.predict(next_states), axis=1)
             """
             We need target to be same shape as predictions. However, we only need
             to update DNN for actions which were taken. So set target equal to 
