@@ -3,9 +3,10 @@ import src
 import numpy as np
 
 class Agent():
-    def __init__(self, state_size, action_size):
+    def __init__(self, state_size, action_size, batch_size=32):
         self.s_size = state_size
         self.a_size = action_size
+        self.batch_size = batch_size
         self.memory = src.ReplayBuffer(state_size, action_size, size=500)
         self.gamma = 0.95 # discount rate
         self.epsilon = 1.0 # exploration rate
@@ -24,11 +25,11 @@ class Agent():
             act_values = self.model.predict(state)
             return np.argmax(act_values[0])
         
-    def replay(self, batch_size=32):
-        if self.memory.size < batch_size:
+    def replay(self):
+        if self.memory.size < self.batch_size:
             return print('Not enough data in replay buffer!')
         else:
-            batch = self.memory.sample_batch(batch_size)
+            batch = self.memory.sample_batch(self.batch_size)
             states = batch['s']
             actions = batch['a']
             rewards = batch['r']
@@ -49,12 +50,19 @@ class Agent():
             target_full = self.model.predict(states)
 #            We want to change this array for actions where we have actual target
 #            Error on  actions which werent taken will be 0
-            target_full[np.arange(batch_size), actions] = target
+            target_full[np.arange(self.batch_size), actions] = target
             
             self.model.train_on_batch(states, target_full)
             
             if self.epsilon > self.epsilon_min:
-                self.epsilon += self.epsilon_decay
+                self.epsilon *= self.epsilon_decay
+                
+        def load(self, name):
+            self.model.load_weights(name)
+            
+        def save(self, name):
+            self.model.save_weights(name)
+            
             
             
             
