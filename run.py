@@ -7,10 +7,10 @@ import pickle
 import time
 #os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
-mode = 'train' # either train or test
+mode = 'test' # either train or test
 model_folder = 'models'
 rewards_folder = 'rewards'
-n_episodes = 1
+n_episodes = 1000
 batch_size = 32
 initial_investment = 20e3
 window_size = 7
@@ -52,6 +52,8 @@ if mode=='test':
         dt = time.time() - t0
         print(f'Episode {e+1}/{n_episodes}; Episode end value {val:.2f}; duration {dt}s')
         portfolio_values.append(val)
+    
+    np.save(f'{rewards_folder}/{mode}_{agent.epsilon}.npy', portfolio_values)
     
 if mode=='train':
     val = 0
