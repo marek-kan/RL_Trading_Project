@@ -68,6 +68,7 @@ def play_one_episode(scaler, agent, env, is_train):
     while not done:
         action = agent.act(state)
         next_state, reward, action, done, info = env.step(action)
+        next_state = scaler.transform([next_state])
         if is_train=='train':
             agent.update_replay_buffer(state, action, reward, next_state, done)
             agent.replay()
