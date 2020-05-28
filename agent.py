@@ -12,7 +12,7 @@ class Agent():
         self.epsilon = 1.0 # exploration rate, 1 - pure exploration, 0 - deterministic
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.995
-        self.model = src.create_model(state_size, action_size)
+        self.model = src.create_model(state_size, action_size, hidden_layers=1, hidden_dim=32)
 
     def update_replay_buffer(self, state, action, reward, next_state, done):
         self.memory.store(state, action, reward, next_state, done)
@@ -26,7 +26,7 @@ class Agent():
         
     def replay(self):
         if self.memory.size < self.batch_size:
-            return print('Not enough data in replay buffer!')
+            return #print('Not enough data in replay buffer!')
         
         batch = self.memory.sample_batch(self.batch_size)
         states = batch['s']
