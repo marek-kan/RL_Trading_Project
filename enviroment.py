@@ -15,10 +15,10 @@ class Env():
         
     Action space: categorical, 3 stocks with buy/sell/hold = 3^3 = 27 possibilities
     """
-    def __init__(self, data, prices, window_used, initial_investment=80e3):
+    def __init__(self, data, prices, window, initial_investment=80e3):
         self.returns_history = data
         self.price_history = prices
-        self.n_step, self.n_stock = data.shape
+        self.n_step, self.n_stock = prices.shape
         self.initial_investment = initial_investment
         self.current_step = None
         self.stock_owned = None
