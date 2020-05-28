@@ -51,8 +51,8 @@ class Agent():
         
         self.model.train_on_batch(states, target_full)
         
-        # if self.epsilon > self.epsilon_min:
-        #     self.epsilon *= self.epsilon_decay
+        if self.epsilon > self.epsilon_min:
+            self.epsilon *= self.epsilon_decay
                 
     def load(self, name):
         self.model.load_weights(name)
