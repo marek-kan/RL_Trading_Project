@@ -21,45 +21,44 @@ class Agent():
 #        uses epsilon-greedy
         if np.random.rand()<=self.epsilon:
             return np.random.choice(self.a_size)
-        else:
-            act_values = self.model.predict(state.reshape(1, self.s_size))
-            return np.argmax(act_values[0])
+        act_values = self.model.predict(state)
+        return np.argmax(act_values[0])
         
     def replay(self):
         if self.memory.size < self.batch_size:
             return print('Not enough data in replay buffer!')
-        else:
-            batch = self.memory.sample_batch(self.batch_size)
-            states = batch['s']
-            actions = batch['a']
-            rewards = batch['r']
-            next_states = batch['s2']
-            done = batch['done']
-            
-            # Calculate the tentative target Q(s', a)
-            target = rewards + (1 - done) * self.gamma * np.amax(self.model.predict(next_states), axis=1)
-            """
-            We need target to be same shape as predictions. However, we only need
-            to update DNN for actions which were taken. So set target equal to 
-            the predictions for all values. Then only change targets for action
-            taken. 
-            """
+        
+        batch = self.memory.sample_batch(self.batch_size)
+        states = batch['s']
+        actions = batch['a']
+        rewards = batch['r']
+        next_states = batch['s2']
+        done = batch['done']
+        
+        # Calculate the tentative target Q(s', a)
+        target = rewards + (1 - done) * self.gamma * np.amax(self.model.predict(next_states), axis=1)
+        """
+        We need target to be same shape as predictions. However, we only need
+        to update DNN for actions which were taken. So set target equal to 
+        the predictions for all values. Then only change targets for action
+        taken. 
+        """
 #            Calculate prediction for each state and action
-            target_full = self.model.predict(states)
+        target_full = self.model.predict(states)
 #            We want to change this array for actions where we have actual target
 #            Error on  actions which werent taken will be 0
-            target_full[np.arange(self.batch_size), actions] = target
-            
-            self.model.train_on_batch(states, target_full)
-            
-            if self.epsilon > self.epsilon_min:
-                self.epsilon *= self.epsilon_decay
+        target_full[np.arange(self.batch_size), actions] = target
+        
+        self.model.train_on_batch(states, target_full)
+        
+        # if self.epsilon > self.epsilon_min:
+        #     self.epsilon *= self.epsilon_decay
                 
-        def load(self, name):
-            self.model.load_weights(name)
-            
-        def save(self, name):
-            self.model.save_weights(name)
+    def load(self, name):
+        self.model.load_weights(name)
+        
+    def save(self, name):
+        self.model.save_weights(name)
             
             
             
