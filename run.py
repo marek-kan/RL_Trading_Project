@@ -52,7 +52,7 @@ if mode=='train':
     agent.save(f'{model_folder}/dqn.h5')
     pickle.dump(scaler, open(f'{model_folder}/scaler.pkl', 'wb'))
         
-    np.save(f'{rewards_folder}/{mode}.npy', portfolio_values)
+np.save(f'{rewards_folder}/{mode}.npy', portfolio_values)
         
     
     
