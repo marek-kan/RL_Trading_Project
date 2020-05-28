@@ -23,6 +23,40 @@ def get_data():
     df = pd.read_csv('data/stock_prices.csv')
     return df.values
 
+def process_data(data, window=7):
+    """
+    Parameters
+    ----------
+    data : numpy array
+           Data of historical prices.
+    window : int, optional
+             Used for control historical time span. The default is 7.
+
+    Returns
+    -------
+    x : numpy array, shape: (len(data)-window, n_stocks*window)
+        Array of historical returns of stocks.
+    y : numpy array, shape: (len(data)-window, n_stocks)
+        Last known stocks prices. Used for trading, not for the states.
+
+    """
+    df = pd.DataFrame(data)
+    shifted = df.shift(1)
+    returns = (df-shifted)/shifted # retruns, more stationary
+    returns = returns.fillna(0).values # we dont know movement for first day
+    x = []
+    y = []
+    for t in range(len(returns)-window):
+        x_temp = returns[t:t+window]
+        y_temp = data[t+window-1] # get last known price, NOT TOMORROW'S PRICE
+        x.append(x_temp)
+        y.append(y_temp)
+    x = np.array(x)
+    x = x.reshape(x.shape[0], x.shape[1]*x.shape[2])
+    y = np.array(y)
+    return x, y
+
+
 def get_scaler(env):
     """
     Plays episodes randomly and stores states for the scaler
