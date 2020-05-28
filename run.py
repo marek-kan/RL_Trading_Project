@@ -6,7 +6,9 @@ from agent import Agent
 import pickle
 import time
 #os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-
+"""
+In train mode dont forget to set right value for stop trainig loop
+"""
 mode = 'test' # either train or test
 model_folder = 'models'
 rewards_folder = 'rewards'
@@ -67,7 +69,6 @@ if mode=='train':
     agent.save(f'{model_folder}/dqn.h5')
     pickle.dump(scaler, open(f'{model_folder}/scaler.pkl', 'wb'))
         
-    np.save(f'{rewards_folder}/{mode}.npy', portfolio_values)
         
     
     
