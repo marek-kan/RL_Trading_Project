@@ -8,31 +8,36 @@ class Env():
     State vector: #shares of stock1, 
         #shares of stock2,
         #shares of stock3,
-        closing price 1,
-        closing price 2,
-        closing price 3,
-        unused cash
+        unused cash,
+        returns of stock 1, # note that dimensionality depends on preprocessing step
+        returns of stock 2,
+        returns of stock 3,
+        
     Action space: categorical, 3 stocks with buy/sell/hold = 3^3 = 27 possibilities
     """
-    def __init__(self, data, initial_investment=80e3):
-        self.stock_history = data
+    def __init__(self, data, prices, window_used, initial_investment=80e3):
+        self.returns_history = data
+        self.price_history = prices
         self.n_step, self.n_stock = data.shape
         self.initial_investment = initial_investment
         self.current_step = None
         self.stock_owned = None
         self.stock_price = None
+        self.stock_returns = None
         self.cash_at_hand = None
         self.action_space = np.arange(3**self.n_stock)
         # 0-sell, 1-hold, 2-buy, permutations of all possible actions
         self.action_list = list(map(list, itertools.product([0, 1, 2], repeat=self.n_stock)))
-        self.state_dim = self.n_stock*2 + 1
+        # n shares + len(history) +1; +1 = unuseh cash
+        self.state_dim = self.n_stock + self.n_stock*window + 1 
         self.reset()
         
     def reset(self):
         # point at first day in dataset
         self.current_step = 0
         self.stock_owned = np.zeros(self.n_stock)
-        self.stock_price = self.stock_history[self.current_step]
+        self.stock_price = self.price_history[self.current_step]
+        self.stock_returns = self.returns_history[self.current_step]
         self.cash_at_hand = self.initial_investment
         return self.get_obs()
     
@@ -43,7 +48,8 @@ class Env():
         prev_val = self.get_val()
         # update price, go to the next day
         self.current_step += 1
-        self.stock_price = self.stock_history[self.current_step]
+        self.stock_price = self.price_history[self.current_step]
+        self.stock_returns = self.returns_history[self.current_step]
         
         # perform the trade
         self.trade(action)
@@ -62,9 +68,9 @@ class Env():
         obs = np.empty(self.state_dim)
         # first fill stocks owned
         obs[:self.n_stock] = self.stock_owned
+        obs[self.n_stock] = self.cash_at_hand
         # next are prices
-        obs[self.n_stock:self.n_stock+3] = self.stock_price
-        obs[-1] = self.cash_at_hand
+        obs[self.n_stock+1:] = self.stock_returns
         return obs
     
     def get_val(self):
