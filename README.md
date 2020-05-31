@@ -1,8 +1,8 @@
 # Reinforcement Learning Trading Project
 In this repositary I will explore usage of Reinforcement Learning (Q-Learning) to Stock Market. I use couple of simplifications:
   * Ignore trading fees
-  * If agent wants to sell -> sell all shares of given stock
-  * If agent wants to buy -> buy as many as possible (in case of multiple buy signals it buys in rounds)
+  * If agent wants to sell -> sells all shares of given stock
+  * If agent wants to buy -> buys as many as possible (in case of multiple buy signals it buys in rounds)
   * Sell before buy
   
 So any action follows specified order.
