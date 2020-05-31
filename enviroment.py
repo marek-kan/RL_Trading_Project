@@ -9,9 +9,8 @@ class Env():
         #shares of stock2,
         #shares of stock3,
         unused cash,
-        returns of stock 1, # note that dimensionality depends on preprocessing step
-        returns of stock 2,
-        returns of stock 3,
+        returns of [stock 1_t,stock 2_t, stock 3_t] for t=1,...,n
+        
         
     Action space: categorical, 3 stocks with buy/sell/hold = 3^3 = 27 possibilities
     """

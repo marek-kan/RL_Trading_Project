@@ -8,14 +8,17 @@ import time
 #os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 """
 In train mode dont forget to set right value for stop trainig loop
+run couple of episodes with random actions (epsilon=1 # on training set),
+then calculate higher boundary of confidence interval: a.mean() + 3*a.std()/np.sqrt(len(a)-1)
+where a is numpy array with means of episodes.
 """
 mode = 'test' # either train or test
 model_folder = 'models'
 rewards_folder = 'rewards'
 n_episodes = 1000
-batch_size = 32
+batch_size = 64
 initial_investment = 20e3
-window_size = 7
+window_size = 3
 
 check_dir(model_folder)
 check_dir(rewards_folder)
@@ -60,14 +63,16 @@ if mode=='test':
 if mode=='train':
     val = 0
     e = 0
-    while val < 35000:
+    # we want to be better than random but avoid overfitting
+    while val < 100e3 or val>150e3:
         t0 = time.time()
         val = play_one_episode(scaler, agent, env, mode)
         dt = time.time() - t0
         print(f'Episode {e+1}/{n_episodes}; Episode end value {val:.2f}; duration {dt}s')
         portfolio_values.append(val)
-    agent.save(f'{model_folder}/dqn.h5')
-    pickle.dump(scaler, open(f'{model_folder}/scaler.pkl', 'wb'))
+        e += 1
+        agent.save(f'{model_folder}/dqn.h5')
+        pickle.dump(scaler, open(f'{model_folder}/scaler.pkl', 'wb'))
         
         
     

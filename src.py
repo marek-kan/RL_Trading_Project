@@ -16,11 +16,15 @@ def check_dir(path):
     if not os.path.exists(path):
         os.makedirs(path)
 
-def get_data():
+def get_data(dataset='corn_sugar_gold.csv'):
     """
-    Returns stock prices of Apple (column 0), Motorola (1), Starbucks (2)
+    Returns stock prices of given dataset
     """
-    df = pd.read_csv('data/stock_prices.csv')
+    df = pd.read_csv(f'data/{dataset}')
+    if sum(df.isna().sum()) > 0:
+        df = df.interpolate()
+    if 'Date' in df.columns:
+        df.drop('Date', axis=1, inplace=True)
     return df.values
 
 def process_data(data, window=7):
@@ -79,7 +83,7 @@ def create_model(input_dim, n_action, hidden_layers=1, hidden_dim=32):
     x = i
 
     for _ in range(hidden_layers):
-        x = Dense(hidden_dim, activation='relu')(x)
+        x = Dense(hidden_dim, activation='elu')(x)
     # final layer
     x = Dense(n_action)(x)
 
